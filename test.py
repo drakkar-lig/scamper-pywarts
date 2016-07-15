@@ -6,8 +6,8 @@ import sys
 import os
 import logging
 
-import warts.base
-import warts.traceroute
+import warts
+from warts.traceroute import Traceroute
 
 
 if __name__ == '__main__':
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     else:
         fd = os.fdopen(sys.stdin.fileno(), 'rb')
     while True:
-        record = base.WartsRecord.parse(fd)
+        record = warts.parse_record(fd)
         print(record)
-        if isinstance(record, traceroute.Traceroute):
+        if isinstance(record, Traceroute):
             print(record.hops)

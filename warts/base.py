@@ -2,13 +2,13 @@ from __future__ import unicode_literals, division, print_function
 
 import logging
 
-import parsing
-from errors import InvalidFormat
+from .parsing import OptionParser, read_from_format
+from .errors import InvalidFormat
 
 logger = logging.getLogger(__name__)
 
 
-class WartsRecord(parsing.OptionParser):
+class WartsRecord(OptionParser):
     """Base class for a Warts record.  This class should not be
     instanciated directly, you should call the parsing factory
     `WartsRecord.parse(file)` to obtain an instance of an appropriate
@@ -44,7 +44,7 @@ class WartsRecord(parsing.OptionParser):
         This is roughly similar to a factory, producing an instance of a
         subclass based on the type found in the file header.
         """
-        (magic, type_, length), size = parsing.read_from_format(fd, cls.WARTS_HEADER_FORMAT)
+        (magic, type_, length), size = read_from_format(fd, cls.WARTS_HEADER_FORMAT)
         if magic != 0x1205:
             raise InvalidFormat("Invalid magic header")
         # Use type to select the right class here

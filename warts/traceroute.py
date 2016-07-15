@@ -2,9 +2,9 @@ from __future__ import unicode_literals, division, print_function
 
 import logging
 
-from parsing import Option, read_string, read_uint8, read_uint16, read_uint32, read_timeval, read_address, read_icmpext
-from base import WartsRecord
-from errors import InvalidFormat
+from .errors import InvalidFormat
+from .base import WartsRecord
+from .parsing import Option, read_string, read_uint8, read_uint16, read_uint32, read_timeval, read_address, read_icmpext
 
 logger = logging.getLogger(__name__)
 

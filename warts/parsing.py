@@ -8,7 +8,7 @@ import warnings
 
 from bits_mod import Bits
 
-from errors import ParseError, InvalidFormat
+from .errors import ParseError, InvalidFormat
 
 logger = logging.getLogger(__name__)
 

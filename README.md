@@ -72,10 +72,11 @@ initial records with mostly uninteresting data).
 
 ```
 import warts
+from warts.traceroute import Traceroute
 
 with open('my_file.warts', 'rb') as f:
     record = warts.parse_record(f)
-    while not isinstance(record, warts.Traceroute):
+    while not isinstance(record, Traceroute):
         record = warts.parse_record(f)
     if record.src_address:
         print("Traceroute source address:", record.src_address)
