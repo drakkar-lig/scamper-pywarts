@@ -43,6 +43,7 @@ class Traceroute(WartsRecord):
         Option('src_address',     read_address), # Bit 25
         Option('dst_address',     read_address), # Bit 26
         Option('user_id',         read_uint32),  # Bit 27
+        Option('ip_offset',       read_uint16),  # Bit 28
    )
 
     def parse(self, fd):
