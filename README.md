@@ -54,14 +54,36 @@ However, there are some areas where the CMAND code does more things:
 
 Unit tests and proper documentation will come in time.
 
-Low-level API: pretty simple, `base.WartsRecord.parse` takes a
-BufferedReader object and reads a record from it.  Please make sure to
-open your input Warts files in binary mode.
+## Low-level API
+
+The low-level API is pretty simple.  There is a `parse_record`
+function that takes a BufferedReader object (such as an opened file)
+and reads a record from it.  Remember to open your input Warts files
+in binary mode.
 
 The returned object is an instance of an appropriate subclass
 (e.g. `Traceroute`), depending on the record type.  Be aware that all
 optional attributes are set to None if not present in the input file.
 You should always check for this possibility in your user code.
+
+Here is an example that opens a file, and repeatedly parses records
+until it finds a Traceroute record (warts files usually have a few
+initial records with mostly uninteresting data).
+
+```
+import warts
+
+with open('my_file.warts', 'rb') as f:
+    record = warts.parse_record(f)
+    while not isinstance(record, warts.Traceroute):
+        record = warts.parse_record(f)
+    if record.src_address:
+        print("Traceroute source address:", record.src_address)
+    if record.dst_address:
+        print("Traceroute destination address:", record.dst_address)
+    print("Number of hops:", len(record.hops))
+    print(record.hops)
+```
 
 If parsing fails, an instance of `errors.ParseError` is thrown.
 `pywarts` generally tries to clean up after itself, so the file
