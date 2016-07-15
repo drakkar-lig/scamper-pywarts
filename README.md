@@ -15,16 +15,12 @@ is less complex because the requirements are less stringent.
 ## Features
 
 - pure-Python, very few dependencies
-
 - can read all basic Warts data types (ping, traceroute)
-
 - nice class-based interface
-
 - streaming-like interface: no more than one record is pulled in
   memory at any given time, so it should handle very large Warts file
   with a limited amount of memory.  You can probably even consume data
   directly from the output of a running Scamper process.
-
 - easily extensible for other Warts data types (patches are welcome)
 
 
@@ -34,21 +30,20 @@ Here is some points on which `pywarts` improves from the code from
 CMAND:
 
 - fully python3-compatible
-
 - nicer class-based interface, instead of huge dicts with all flags
-
 - attribute names have been generally made more readable (although
   that often means longer names)
-
 - probably a bit faster (→ benchmark), because we rely on (built-in) C
   functions to parse strings and flags
-
 - properly handles unknown flags and options, by ignoring them
 
 However, there are some areas where the CMAND code does more things:
 
 - `pywarts` does not implement the deprecated address format (it is
   quite complex and has been deprecated for several years)
+- there are some nice scripts in <https://github.com/cmand/scamper>,
+  for instance a script to attach to and control a running Scamper
+  process
 
 # Documentation
 
@@ -103,13 +98,11 @@ Some currently unanswered questions:
   filter by record type?  Try to parse further, for instance decode
   flags or produce different objects for UDP, TCP and ICMP
   traceroutes?
-
 - Should we try to normalise values when parsing?  For instance,
   should we use `ipaddr` objects for addresses?  Some times are
   expressed in centiseconds, some in microseconds, some in seconds.
   Should we normalize that to a common base?  Are floats acceptable
   for time values?
-
 - What should we do when there is a parsing error?  How can the user
   continue parsing the next record if he/she wants to?
 
@@ -123,6 +116,5 @@ These are planned improvements, mostly invisible to users of the library:
   avoid the cumbersome and manual book-keeping of the number of bytes
   read.  It would also allow to parse referenced address, which is
   necessary for correctness.
-
 - check for EOF in all places reading data from the input, so that we
   avoid throwing unexpected exceptions around.
