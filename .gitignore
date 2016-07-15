@@ -1,2 +1,12 @@
 *~
-*.pyc
+__pycache__/
+*.py[cod]
+build/
+dist/
+downloads/
+eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+pip-log.txt
+pip-delete-this-directory.txt
