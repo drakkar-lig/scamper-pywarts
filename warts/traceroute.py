@@ -2,7 +2,7 @@ from __future__ import unicode_literals, division, print_function
 
 import logging
 
-from parsing import Option, read_string, read_uint8, read_uint16, read_uint32, read_timeval, read_address
+from parsing import Option, read_string, read_uint8, read_uint16, read_uint32, read_timeval, read_address, read_icmpext
 from base import WartsRecord
 from errors import InvalidFormat
 
@@ -82,7 +82,38 @@ class Traceroute(WartsRecord):
 
 class TracerouteHop(WartsRecord):
 
+    OPTIONS = (
+        Option('address_id',          read_uint32, ignore=True), # Bit  0
+        Option('probe_ttl',           read_uint8),   # Bit  1
+        Option('reply_ttl',           read_uint8),   # Bit  2
+        Option('hop_flags',           read_uint8),   # Bit  3
+        Option('probe_id',            read_uint8),   # Bit  4
+        Option('rtt',                 read_uint32),  # Bit  5
+        Option('reply_icmp_typecode', read_uint16),  # Bit  6
+        Option('probe_size',          read_uint16),  # Bit  7
+        Option('reply_size',          read_uint16),  # Bit  8
+        Option('reply_ip_id',         read_uint16),  # Bit  9
+        Option('tos',                 read_uint8),   # Bit 10
+        Option('nexthop_mtu',         read_uint16),  # Bit 11
+        Option('quoted_ip_length',    read_uint16),  # Bit 12
+        Option('quoted_ttl',          read_uint8),   # Bit 13
+        Option('reply_tcp_flags',     read_uint8),   # Bit 14
+        Option('quoted_tos',          read_uint8),   # Bit 15
+        Option('icmpext',             read_icmpext), # Bit 16
+        Option('address',             read_address), # Bit 17
+        Option('transmit_time',       read_timeval), # Bit 18
+    )
+
     def parse(self, fd):
-        # Not implemented yet
-        options_size = self.parse_options(fd, [])
+        logger.debug("Parsing a traceroute hop")
+        options_size = self.parse_options(fd, self.OPTIONS)
         return options_size
+
+    def __str__(self):
+        if hasattr(self, 'address'):
+            return 'Hop({})'.format(self.address)
+        else:
+            return 'Hop'
+
+    def __repr__(self):
+        return str(self)

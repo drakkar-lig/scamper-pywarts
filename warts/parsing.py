@@ -73,6 +73,25 @@ def read_string(fd):
     fd.read(len(s) + 1)
     return s.decode('utf-8'), len(s) + 1
 
+# [data] is a bunch of undecoded bytes.
+IcmpExtension = namedtuple('IcmpExtension', ['class_', 'type_', 'data'])
+
+def read_icmpext(fd):
+    """Read "ICMP extension data", which is turned into a list of
+    IcmpExtension instances."""
+    total_length, length_size = read_uint16(fd)
+    extensions = list()
+    bytes_read = 0
+    while bytes_read < total_length:
+        (ext_length, ext_class, ext_type), size = read_from_format(fd, '>HBB')
+        bytes_read += size
+        (ext_data, ), size = read_from_format(fd, '>{}s'.format(ext_length))
+        bytes_read += size
+        extensions.append(IcmpExtension(ext_class, ext_type, ext_data))
+    if bytes_read > total_length:
+        raise InvalidFormat("Inconsistent ICMP extension length")
+    return extensions, length_size + bytes_read
+
 def read_flags(fd):
     """Parse and return a bitmask representing the option flags"""
     total_read = 0
