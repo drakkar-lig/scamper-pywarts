@@ -11,7 +11,10 @@ import warts.traceroute
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    if len(sys.argv) > 1 and sys.argv[1] == '-v':
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
     if sys.version_info.major >= 3:
         fd = sys.stdin.buffer
     else:
@@ -19,3 +22,5 @@ if __name__ == '__main__':
     while True:
         record = base.WartsRecord.parse(fd)
         print(record)
+        if isinstance(record, traceroute.Traceroute):
+            print(record.hops)
