@@ -71,11 +71,15 @@ is incorrectly formatted.
 
 # Developement
 
+## High-level
+
 Some currently unanswered questions:
 
-- What should the high-level API look like?  Just an iterator of
-  records?  Allow to filter by record type?  Is there even a need for
-  a higher-level API?
+- What should the high-level API look like, and is there even a need
+  for a higher-level API?  Just an iterator of records?  Allow to
+  filter by record type?  Try to parse further, for instance decode
+  flags or produce different objects for UDP, TCP and ICMP
+  traceroutes?
 
 - Should we try to normalise values when parsing?  For instance,
   should we use `ipaddr` objects for addresses?  Some times are
@@ -87,3 +91,15 @@ Some currently unanswered questions:
   continue parsing the next record if he/she wants to?
 
 Please open issues if you have ideas and thoughts on these questions.
+
+## Low-level
+
+These are planned improvements, mostly invisible to users of the library:
+
+- introduce some state in the basic parsing functions.  This would
+  avoid the cumbersome and manual book-keeping of the number of bytes
+  read.  It would also allow to parse referenced address, which is
+  necessary for correctness.
+
+- check for EOF in all places reading data from the input, so that we
+  avoid throwing unexpected exceptions around.
