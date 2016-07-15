@@ -96,8 +96,25 @@ def read_flags(fd):
     logger.debug("Read flag %s", flags)
     return flags, total_read
 
-# Facility for parsing options, using the weird flag format.
-Option = namedtuple('Option', ['attr_name', 'parse_function'])
+
+class Option(object):
+    """
+    Simple container for an optional field.  It describes a parsing
+    function that should be called to parse the option, and an
+    attribute name used to store the resulting value in a Python
+    object.
+
+    If [ignore] is True, the option should be parsed, but the value
+    should be thrown away instead of being recorded in a Python
+    object.  This is mostly useful to ignore options related to the
+    deprecated address format.
+    """
+
+    def __init__(self, attr_name, parse_function, ignore=False):
+        self.attr_name = attr_name
+        self.parse_function = parse_function
+        self.ignore = ignore
+
 
 class OptionParser(object):
     """Mixin class that allows to parse options."""
@@ -132,6 +149,8 @@ class OptionParser(object):
             logger.debug("Read option %s with value %s", option.attr_name,
                          value)
             total_bytes_read += bytes_read
+            if option.ignore:
+                continue
             setattr(self, option.attr_name, value)
         if total_bytes_read > options_length:
             raise InvalidFormat("Inconsistent option length")

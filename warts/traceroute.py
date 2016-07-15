@@ -17,8 +17,8 @@ class Traceroute(WartsRecord):
     OPTIONS = (
         Option('list_id',         read_uint32),  # Bit  0
         Option('cycle_id',        read_uint32),  # Bit  1
-        Option('src_address_id',  read_uint32),  # Bit  2
-        Option('dst_address_id',  read_uint32),  # Bit  3
+        Option('src_address_id',  read_uint32, ignore=True),  # Bit  2
+        Option('dst_address_id',  read_uint32, ignore=True),  # Bit  3
         Option('start_time',      read_timeval), # Bit  4
         Option('stop_reason',     read_uint8),   # Bit  5
         Option('stop_data',       read_uint8),   # Bit  6
