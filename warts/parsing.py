@@ -5,6 +5,7 @@ import ctypes
 from collections import namedtuple
 import logging
 import warnings
+import socket
 
 from bits_mod import Bits
 
@@ -56,12 +57,16 @@ def read_address(fd):
     if length > 0:
         type_, size2 = read_uint8(fd)
         (addr, ), size3 = read_from_format(fd, ">{}s".format(length))
-        # TODO: decode address
-        return addr, size1 + size2 + size3
+        if type_ == 0x01:
+            addr_str = socket.inet_ntop(socket.AF_INET, addr)
+        elif type_ == 0x02:
+            addr_str = socket.inet_ntop(socket.AF_INET6, addr)
+        # TODO: decode UTF-8 address when using python2
+        return addr_str, size1 + size2 + size3
     else:
         id, size2 = read_uint32(fd)
         warnings.warn("Referenced address are not supported yet")
-        return b"", size1 + size2
+        return "", size1 + size2
 
 def read_string(fd):
     """Read a zero-terminated UTF-8 string from a file-like object."""
