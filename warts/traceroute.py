@@ -53,7 +53,7 @@ class Traceroute(WartsRecord):
         self.hops = []
         logger.debug("Found %d traceroute hops", hop_count)
         for _ in range(hop_count):
-             hop = TracerouteHop(self.fd, self.p)
+             hop = TracerouteHop(self.p)
              hop.parse()
              self.hops.append(hop)
         # Parse other optional data

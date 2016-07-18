@@ -15,42 +15,25 @@ IcmpExtension = namedtuple('IcmpExtension', ['class_', 'type_', 'data'])
 
 
 class Parser(object):
-    """Simple object that offers a number of parsing primitives, and records
-    the total number of bytes read.
-
-    All methodes take a BufferedReader-like object as input, and consume
-    exactly the right amount of data needed to parse the input.
+    """Simple object that offers a number of parsing primitives on a buffer,
+    and records an offset into the buffer (i.e. the total number of bytes
+    parsed so far).
     """
 
-    def __init__(self, fd):
-        self.bytes_read = 0
-        self.fd = fd
+    def __init__(self, buf):
+        self.buf = buf
+        # Offset in bytes, i.e. the number of bytes parsed so far
+        self.offset = 0
         self.addresses = list()
 
-    def safe_read(self, size):
-        """
-        Same as BufferedReader.read, but catches possible exceptions and turn
-        them into subclasses of ParseError.  In particular, it raises a
-        IncompleteRead exception when fewer than [size] bytes have been read.
-        """
-        try:
-            buf = self.fd.read(size)
-        except:
-            raise ReadError()
-        if len(buf) == 0:
-            raise EmptyRead()
-        if len(buf) != size:
-            raise IncompleteRead()
-        self.bytes_read += size
-        return buf
-
     def read_from_format(self, format):
-        """Read and decode data from a file-like object, according to a format
-        string suitable for struct.unpack.
+        """Decode data from the buffer, according to a format string suitable for
+        struct.unpack.
         """
         size = struct.calcsize(format)
-        buf = self.safe_read(size)
-        return struct.unpack(format, buf)
+        res = struct.unpack_from(format, self.buf, self.offset)
+        self.offset += size
+        return res
 
     def read_uint8(self):
         return self.read_from_format('B')[0]
@@ -85,13 +68,11 @@ class Parser(object):
                 raise InvalidFormat("Invalid referenced address")
 
     def read_string(self):
-        """Read a zero-terminated UTF-8 string from a file-like object."""
-        # Assume that strings are less than 4 KB.
-        buf = self.fd.peek(4096)
-        # TODO: copy?
-        s = ctypes.string_at(buf)
+        """Read a zero-terminated UTF-8 string from the buffer."""
+        # TODO: do we really need to make a copy?
+        s = bytes(ctypes.string_at(self.buf[self.offset:]))
         # Seek to the end of the string (including the final zero char)
-        self.safe_read(len(s) + 1)
+        self.offset += len(s) + 1
         return s.decode('utf-8')
 
     def read_icmpext(self):
@@ -99,12 +80,12 @@ class Parser(object):
         IcmpExtension instances."""
         total_length = self.read_uint16()
         extensions = list()
-        expected_bytes = self.bytes_read + total_length
-        while self.bytes_read < expected_bytes:
+        expected_bytes = self.offset + total_length
+        while self.offset < expected_bytes:
             ext_length, ext_class, ext_type = self.read_from_format('>HBB')
             ext_data = self.read_from_format('>{}s'.format(ext_length))[0]
             extensions.append(IcmpExtension(ext_class, ext_type, ext_data))
-        if self.bytes_read > expected_bytes:
+        if self.offset > expected_bytes:
             raise InvalidFormat("Inconsistent ICMP extension length")
         return extensions
 

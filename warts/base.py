@@ -1,6 +1,7 @@
 from __future__ import unicode_literals, division, print_function
 
 import logging
+import struct
 
 from .parsing import Parser
 from .errors import InvalidFormat, EmptyRead
@@ -19,8 +20,7 @@ class WartsRecord(object):
     # Mapping from types (as seen in the Warts object header) to parsing class
     WARTS_TYPES = {}
 
-    def __init__(self, fd, parser):
-        self.fd = fd
+    def __init__(self, parser):
         self.p = parser
 
     @staticmethod
@@ -39,10 +39,10 @@ class WartsRecord(object):
 
     @classmethod
     def parse(cls, fd):
-        """Given a buffer-like stream supporting read() and peek(), parse the next
-        record and return an instance of the appropriate class.  If the
-        record is of an unknown type, an instance of UnknownRecord is
-        returned.
+        """
+        Given a file-like stream, parse the next record and return an instance
+        of the appropriate class.  If the record is of an unknown type, an
+        instance of UnknownRecord is returned.
 
         If the end of file is reached, return None.
 
@@ -55,30 +55,25 @@ class WartsRecord(object):
         This is roughly similar to a factory, producing an instance of a
         subclass based on the type found in the file header.
         """
-        p = Parser(fd)
-        try:
-            magic, type_, length = p.read_from_format(cls.WARTS_HEADER_FORMAT)
-        except EmptyRead:
+        # TODO: handle I/O errors related to reading from a stream
+        header = fd.read(struct.calcsize(cls.WARTS_HEADER_FORMAT))
+        if len(header) == 0: # EOF
             return None
+        magic, type_, length = struct.unpack(cls.WARTS_HEADER_FORMAT, header)
         if magic != 0x1205:
             raise InvalidFormat("Invalid magic header")
-        total_expected_length = p.bytes_read + length
+        buf = fd.read(length)
+        p = Parser(buf)
         # Use type to select the right class here
         subclass = cls.WARTS_TYPES.get(type_, UnknownRecord)
-        record = subclass(fd, p)
+        record = subclass(p)
         record.type = type_
         record.length = length
         record.parse()
-        # Check that we haven't read too much
-        if p.bytes_read > total_expected_length:
-            raise InvalidFormat("Inconsistent length in record header")
-        # Skip past unknown stuff
-        if p.bytes_read < total_expected_length:
-            p.safe_read(total_expected_length - p.bytes_read)
         return record
 
     def parse_options(self, options):
-        """Given a list of Option instances, parse them from the input file.
+        """Given a list of Option instances, parse them from the input.
         For each option, if it is present in the input, we create the
         corresponding attribute in the current Python object.  The
         attribute is set to None when the option is not present.
@@ -97,7 +92,7 @@ class WartsRecord(object):
         if flags == 0:
             return
         options_length = self.p.read_uint16()
-        expected_bytes_read = self.p.bytes_read + options_length
+        expected_bytes_read = self.p.offset + options_length
         # Note: the warts(5) man page uses 1-base indexing to document
         # the bit positions, but we use 0-based indexing for sanity.
         for position, option in enumerate(options):
@@ -109,13 +104,13 @@ class WartsRecord(object):
                 continue
             setattr(self, option.attr_name, value)
         # Check that we haven't read too much
-        if self.p.bytes_read > expected_bytes_read:
+        if self.p.offset > expected_bytes_read:
             raise InvalidFormat("Inconsistent option length")
         # Skip past unknown options
-        if self.p.bytes_read < expected_bytes_read:
-            remaining = expected_bytes_read - self.p.bytes_read
-            logger.debug("Skipping %d bytes worth of unknown options", remaining)
-            self.p.safe_read(remaining)
+        if self.p.offset < expected_bytes_read:
+            logger.debug("Skipping %d bytes worth of unknown options",
+                         expected_bytes_read - self.p.offset)
+            self.p.offset = expected_bytes_read
 
 
 class UnknownRecord(WartsRecord):
@@ -124,7 +119,7 @@ class UnknownRecord(WartsRecord):
 
     def parse(self):
         logger.info("Ignoring unknown record %s", self)
-        self.data = self.p.safe_read(self.length)
+        self.data = self.p.buf
 
     def __str__(self):
         return 'Unknown(type={}, length={})'.format(self.type, self.length)
