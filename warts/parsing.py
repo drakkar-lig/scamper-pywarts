@@ -36,7 +36,9 @@ class Parser(object):
         return res
 
     def read_uint8(self):
-        return self.read_from_format('B')[0]
+        res = self.buf[self.offset]
+        self.offset += 1
+        return res
 
     def read_uint16(self):
         return self.read_from_format('>H')[0]
