@@ -62,7 +62,13 @@ class WartsRecord(OptionParser):
         record = subclass()
         record.type = type_
         record.length = length
-        size = record.parse(fd)
+        bytes_read = record.parse(fd)
+        # Check that we haven't read too much
+        if bytes_read > record.length:
+            raise InvalidFormat("Inconsistent length in record header")
+        # Skip past unknown stuff
+        if bytes_read < record.length:
+            safe_read(fd, record.length - bytes_read)
         return record
 
 

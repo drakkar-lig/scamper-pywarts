@@ -2,9 +2,8 @@ from __future__ import unicode_literals, division, print_function
 
 import logging
 
-from .errors import InvalidFormat
 from .base import WartsRecord
-from .parsing import Option, safe_read, read_string, read_uint8, read_uint16, read_uint32, read_timeval, read_address, read_icmpext
+from .parsing import Option, read_string, read_uint8, read_uint16, read_uint32, read_timeval, read_address, read_icmpext
 
 logger = logging.getLogger(__name__)
 
@@ -65,13 +64,7 @@ class Traceroute(WartsRecord):
         self.pmtud = None
         self.last_ditch = None
         self.doubletree = None
-        if bytes_read > self.length:
-            raise InvalidFormat("Inconsistent length in record header")
-        # Skip past unknown stuff
-        # TODO: move that to WartsRecord?
-        if bytes_read < self.length:
-            safe_read(fd, self.length - bytes_read)
-        return self.length
+        return bytes_read
 
     def __str__(self):
         if hasattr(self, 'hops'):
