@@ -27,15 +27,17 @@ is less complex because the requirements are less stringent.
 ## Difference with the implementation from CMAND
 
 Here is some points on which `pywarts` improves from the code from
-CMAND:
+<https://github.com/cmand/scamper>:
 
 - fully python3-compatible
 - nicer class-based interface, instead of huge dicts with all flags
+- properly handles unknown flags and options, by ignoring them
 - attribute names have been generally made more readable (although
   that often means longer names)
-- probably a bit faster (→ benchmark), because we rely on (built-in) C
-  functions to parse strings and flags
-- properly handles unknown flags and options, by ignoring them
+- possibly quite a bit faster (it would need proper benchmarks), because
+  of the way we parse flags and strings.  Also, we read a whole record
+  into memory before parsing it, which is a bit faster than calling
+  `read()` repeatedly on very small amount of data.
 
 However, there are some areas where the CMAND code does more things:
 
