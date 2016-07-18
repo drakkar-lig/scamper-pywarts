@@ -102,6 +102,7 @@ class WartsRecord(object):
         # the bit positions, but we use 0-based indexing for sanity.
         for position, option in enumerate(options):
             if not flags & (1 << position):
+                setattr(self, option.attr_name, None)
                 continue
             value = option.parse_function(self.p)
             if option.ignore:
