@@ -94,14 +94,14 @@ class WartsRecord(object):
         network protocols use TLV encoding...
         """
         flags = self.p.read_flags()
-        if flags.count() == 0:
+        if flags == 0:
             return
         options_length = self.p.read_uint16()
         expected_bytes_read = self.p.bytes_read + options_length
         # Note: the warts(5) man page uses 1-base indexing to document
         # the bit positions, but we use 0-based indexing for sanity.
         for position, option in enumerate(options):
-            if not flags.is_true(position):
+            if not flags & (1 << position):
                 continue
             value = option.parse_function(self.p)
             logger.debug("Read option %s with value %s", option.attr_name,

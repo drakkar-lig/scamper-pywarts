@@ -6,8 +6,6 @@ from collections import namedtuple
 import logging
 import socket
 
-from bits_mod import Bits
-
 from .errors import ParseError, InvalidFormat, EmptyRead, IncompleteRead, ReadError
 
 logger = logging.getLogger(__name__)
@@ -112,23 +110,17 @@ class Parser(object):
 
     def read_flags(self):
         """Parse and return a bitmask representing the option flags"""
-        # Weird encoding, see warts(5)
-        flag_bytes = []
+        # We use a python integer as a bitmask (fast, especially for less than 32 flags)
+        flags = 0
+        bit_pos = 0
+        # See warts(5) to understand the weird encoding
         while True:
-            flag_byte = self.read_uint8()
-            flag_bytes.append(flag_byte)
-            if flag_byte & 0x80 == 0:
+            byte = self.read_uint8()
+            flags |= ((byte & 0x7F) << bit_pos)
+            if byte & 0x80 == 0:
                 break
-        # Upper bound on the number of bits
-        flags = Bits(len(flag_bytes) * 8)
-        offset = 0
-        for i, byte in enumerate(flag_bytes):
-            nb_bits = 8 if i == len(flag_bytes) - 1 else 7
-            for bit_pos in range(nb_bits):
-                if byte & (1 << bit_pos) != 0:
-                    flags.mark(offset + bit_pos)
-            offset += nb_bits
-        logger.debug("Read flag %s", flags)
+            bit_pos += 7
+        logger.debug("Read flags %s", bin(flags))
         return flags
 
 
