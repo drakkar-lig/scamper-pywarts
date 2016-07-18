@@ -50,11 +50,17 @@ class Parser(object):
         sec, usec = self.read_from_format('>II')
         return sec + usec / 1000000
 
+    def read_bytes(self, length):
+        """Returns a fixed-length chunk of the buffer, as a bytes() object."""
+        res = self.buf[self.offset:self.offset + length]
+        self.offset += length
+        return res
+
     def read_address(self):
         length = self.read_uint8()
         if length > 0:
             type_ = self.read_uint8()
-            addr = self.read_from_format(">{}s".format(length))[0]
+            addr = self.read_bytes(length)
             if type_ == 0x01:
                 addr_str = socket.inet_ntop(socket.AF_INET, addr)
             elif type_ == 0x02:
@@ -85,7 +91,7 @@ class Parser(object):
         expected_bytes = self.offset + total_length
         while self.offset < expected_bytes:
             ext_length, ext_class, ext_type = self.read_from_format('>HBB')
-            ext_data = self.read_from_format('>{}s'.format(ext_length))[0]
+            ext_data = self.read_bytes(ext_length)
             extensions.append(IcmpExtension(ext_class, ext_type, ext_data))
         if self.offset > expected_bytes:
             raise InvalidFormat("Inconsistent ICMP extension length")
