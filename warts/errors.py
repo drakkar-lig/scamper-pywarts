@@ -7,3 +7,15 @@ class ParseError(Exception):
 
 class InvalidFormat(ParseError):
     pass
+
+
+class EmptyRead(ParseError):
+    pass
+
+
+class IncompleteRead(ParseError):
+    pass
+
+
+class ReadError(ParseError):
+    pass

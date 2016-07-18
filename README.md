@@ -116,5 +116,3 @@ These are planned improvements, mostly invisible to users of the library:
   avoid the cumbersome and manual book-keeping of the number of bytes
   read.  It would also allow to parse referenced address, which is
   necessary for correctness.
-- check for EOF in all places reading data from the input, so that we
-  avoid throwing unexpected exceptions around.

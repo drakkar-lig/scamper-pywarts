@@ -9,7 +9,7 @@ import socket
 
 from bits_mod import Bits
 
-from .errors import ParseError, InvalidFormat
+from .errors import ParseError, InvalidFormat, EmptyRead, IncompleteRead, ReadError
 
 logger = logging.getLogger(__name__)
 
@@ -25,15 +25,28 @@ All parsing functions must:
 TODO: there may be a nicer way to record the number of bytes read so far.
 """
 
+def safe_read(fd, size=-1):
+    """
+    Same as BufferedReader.read, but catches possible exceptions and turn
+    them into subclasses of ParseError.  In particular, it raises a
+    IncompleteRead exception when fewer than [size] bytes have been read.
+    """
+    try:
+        buf = fd.read(size)
+    except:
+        raise ReadError()
+    if len(buf) == 0:
+        raise EmptyRead()
+    if len(buf) != size:
+        raise IncompleteRead()
+    return buf
+
 def read_from_format(fd, format):
     """Read and decode data from a file-like object, according to a format
     string suitable for struct.unpack.
     """
     size = struct.calcsize(format)
-    buf = fd.read(size)
-    # TODO: handle EOF (empty bytes object).  Another exception?
-    if len(buf) != size:
-        raise ParseError("Not enough data in file")
+    buf = safe_read(fd, size)
     return struct.unpack(format, buf), size
 
 def read_uint8(fd):
@@ -75,7 +88,7 @@ def read_string(fd):
     # TODO: copy?
     s = ctypes.string_at(buf)
     # Seek to the end of the string (including the final zero char)
-    fd.read(len(s) + 1)
+    safe_read(fd, len(s) + 1)
     return s.decode('utf-8'), len(s) + 1
 
 # [data] is a bunch of undecoded bytes.
@@ -182,6 +195,6 @@ class OptionParser(object):
         if total_bytes_read < options_length:
             logger.debug("Skipping %d bytes worth of unknown options",
                          options_length - total_bytes_read)
-            fd.read(options_length - total_bytes_read)
+            safe_read(fd, options_length - total_bytes_read)
         # Size of the bitmask, plus 2 bytes for the length field, plus the options themselves
         return flags_size + options_length_size + options_length

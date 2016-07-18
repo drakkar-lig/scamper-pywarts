@@ -21,6 +21,8 @@ if __name__ == '__main__':
         fd = os.fdopen(sys.stdin.fileno(), 'rb')
     while True:
         record = warts.parse_record(fd)
+        if record == None:
+            break
         print(record)
         if isinstance(record, Traceroute):
             print(record.hops)

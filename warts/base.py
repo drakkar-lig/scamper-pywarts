@@ -2,8 +2,8 @@ from __future__ import unicode_literals, division, print_function
 
 import logging
 
-from .parsing import OptionParser, read_from_format
-from .errors import InvalidFormat
+from .parsing import OptionParser, read_from_format, safe_read
+from .errors import InvalidFormat, EmptyRead
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +40,21 @@ class WartsRecord(OptionParser):
         record is of an unknown type, an instance of UnknownRecord is
         returned.
 
-        In any case, the stream is positioned at the start of the next record.
+        If the end of file is reached, return None.
+
+        If something goes wrong, a subclass of errors.ParseError is raised.
+
+        Except in case of serious errors (for instance an error when
+        reading from the input), the stream is always positioned at the
+        start of the next record.
 
         This is roughly similar to a factory, producing an instance of a
         subclass based on the type found in the file header.
         """
-        (magic, type_, length), size = read_from_format(fd, cls.WARTS_HEADER_FORMAT)
+        try:
+            (magic, type_, length), size = read_from_format(fd, cls.WARTS_HEADER_FORMAT)
+        except EmptyRead:
+            return None
         if magic != 0x1205:
             raise InvalidFormat("Invalid magic header")
         # Use type to select the right class here
@@ -63,7 +72,7 @@ class UnknownRecord(WartsRecord):
 
     def parse(self, fd):
         logger.info("Ignoring unknown record %s", self)
-        self.data = fd.read(self.length)
+        self.data = safe_read(fd, self.length)
         return self.length
 
     def __str__(self):
