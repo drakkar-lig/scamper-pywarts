@@ -1,11 +1,7 @@
 from __future__ import unicode_literals, division, print_function
 
-import logging
-
 from .base import WartsRecord
 from .parsing import Parser, Option
-
-logger = logging.getLogger(__name__)
 
 WARTS_TYPE_LIST = 0x0001
 
@@ -19,7 +15,6 @@ class List(WartsRecord):
     )
 
     def parse(self):
-        logger.debug("Parsing a list record (%d bytes)", self.length)
         self.auto_id = self.p.read_uint32()
         self.manual_id = self.p.read_uint32()
         self.name = self.p.read_string()

@@ -66,6 +66,8 @@ class WartsRecord(object):
         p = Parser(buf)
         # Use type to select the right class here
         subclass = cls.WARTS_TYPES.get(type_, UnknownRecord)
+        logger.debug("Parsing a %s (%d bytes)", subclass.__name__,
+                     length)
         record = subclass(p)
         record.type = type_
         record.length = length

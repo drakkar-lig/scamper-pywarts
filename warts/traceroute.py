@@ -46,7 +46,6 @@ class Traceroute(WartsRecord):
    )
 
     def parse(self):
-        logger.debug("Parsing a traceroute record (%d bytes)", self.length)
         self.parse_options(self.OPTIONS)
         # Parse traceroute hops
         hop_count = self.p.read_uint16()
@@ -94,7 +93,6 @@ class TracerouteHop(WartsRecord):
     )
 
     def parse(self):
-        logger.debug("Parsing a traceroute hop")
         self.parse_options(self.OPTIONS)
 
     def __str__(self):

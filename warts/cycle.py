@@ -1,11 +1,7 @@
 from __future__ import unicode_literals, division, print_function
 
-import logging
-
 from .base import WartsRecord
 from .parsing import Parser, Option
-
-logger = logging.getLogger(__name__)
 
 WARTS_TYPE_CYCLE_START = 0x0002
 WARTS_TYPE_CYCLE_DEF   = 0x0003
@@ -21,7 +17,6 @@ class CycleStart(WartsRecord):
     )
 
     def parse(self):
-        logger.debug("Parsing a cycle record (%d bytes)", self.length)
         self.auto_id = self.p.read_uint32()
         self.list_id = self.p.read_uint32()
         self.manual_id = self.p.read_uint32()
@@ -43,6 +38,5 @@ class CycleDefinition(CycleStart):
 class CycleStop(WartsRecord):
 
     def parse(self):
-        logger.debug("Parsing a cycle stop record (%d bytes)", self.length)
         self.cycle_id = self.p.read_uint32()
         self.stop_time = self.p.read_uint32()
