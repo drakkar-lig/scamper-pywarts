@@ -120,7 +120,6 @@ class Parser(object):
             if byte & 0x80 == 0:
                 break
             bit_pos += 7
-        logger.debug("Read flags %s", bin(flags))
         return flags
 
 

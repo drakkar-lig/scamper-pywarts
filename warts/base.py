@@ -104,8 +104,6 @@ class WartsRecord(object):
             if not flags & (1 << position):
                 continue
             value = option.parse_function(self.p)
-            logger.debug("Read option %s with value %s", option.attr_name,
-                         value)
             if option.ignore:
                 continue
             setattr(self, option.attr_name, value)
