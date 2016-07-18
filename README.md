@@ -107,12 +107,3 @@ Some currently unanswered questions:
   continue parsing the next record if he/she wants to?
 
 Please open issues if you have ideas and thoughts on these questions.
-
-## Low-level
-
-These are planned improvements, mostly invisible to users of the library:
-
-- introduce some state in the basic parsing functions.  This would
-  avoid the cumbersome and manual book-keeping of the number of bytes
-  read.  It would also allow to parse referenced address, which is
-  necessary for correctness.

@@ -4,7 +4,6 @@ import struct
 import ctypes
 from collections import namedtuple
 import logging
-import warnings
 import socket
 
 from bits_mod import Bits
@@ -28,6 +27,7 @@ class Parser(object):
     def __init__(self, fd):
         self.bytes_read = 0
         self.fd = fd
+        self.addresses = list()
 
     def safe_read(self, size):
         """
@@ -76,12 +76,15 @@ class Parser(object):
                 addr_str = socket.inet_ntop(socket.AF_INET, addr)
             elif type_ == 0x02:
                 addr_str = socket.inet_ntop(socket.AF_INET6, addr)
+            self.addresses.append(addr_str)
             # TODO: decode UTF-8 address when using python2
             return addr_str
         else:
             id_ = self.read_uint32()
-            warnings.warn("Referenced address are not supported yet")
-            return ""
+            try:
+                return self.addresses[id_]
+            except IndexError:
+                raise InvalidFormat("Invalid referenced address")
 
     def read_string(self):
         """Read a zero-terminated UTF-8 string from a file-like object."""
