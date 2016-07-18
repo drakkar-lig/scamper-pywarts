@@ -35,9 +35,10 @@ class WartsRecord(OptionParser):
 
     @classmethod
     def parse(cls, fd):
-        """Given a buffer-like stream supporting read() and peek(), parse the
-        next record and return an instance of the appropriate class.
-        If the record is of an unknown type, None is returned.
+        """Given a buffer-like stream supporting read() and peek(), parse the next
+        record and return an instance of the appropriate class.  If the
+        record is of an unknown type, an instance of UnknownRecord is
+        returned.
 
         In any case, the stream is positioned at the start of the next record.
 
@@ -48,13 +49,22 @@ class WartsRecord(OptionParser):
         if magic != 0x1205:
             raise InvalidFormat("Invalid magic header")
         # Use type to select the right class here
-        subclass = cls.WARTS_TYPES.get(type_, None)
-        if subclass == None:
-            logger.warn("Ignoring unknown record of type %d (%d bytes)", type_, length)
-            fd.read(length)
-            return
+        subclass = cls.WARTS_TYPES.get(type_, UnknownRecord)
         record = subclass()
         record.type = type_
         record.length = length
         size = record.parse(fd)
         return record
+
+
+class UnknownRecord(WartsRecord):
+    """Default class returned when we encounter a record with an unknown type.
+    The payload of the record is stored in [self.data], as a bytes object."""
+
+    def parse(self, fd):
+        logger.info("Ignoring unknown record %s", self)
+        self.data = fd.read(self.length)
+        return self.length
+
+    def __str__(self):
+        return 'Unknown(type={}, length={})'.format(self.type, self.length)
