@@ -64,6 +64,15 @@ with open('my_file.warts', 'rb') as f:
     print(record.hops)
 ```
 
+To know which attributes are available, look at the definition of the
+relevant class (there will be real documentation at some point).  For
+instance, for `Traceroute`, almost all attributes are optional and defined
+here:
+[traceroute.py](https://github.com/drakkar-lig/scamper-pywarts/blob/master/warts/traceroute.py#L34).
+Some attributes are not optional and are defined in the `parse()` method
+of the class.  For instance, a traceroute object `t` always provides a
+list of `TracerouteHop` objects in `t.hops`.
+
 If parsing fails, an instance of `errors.ParseError` is thrown.
 `pywarts` generally tries to clean up after itself, so the file
 descriptor should point to the next record even after a parsing error.
