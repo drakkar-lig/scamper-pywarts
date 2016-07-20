@@ -12,9 +12,15 @@ now vastly diverged.  The parsing architecture is loosely inspired
 from the [Ryu](https://osrg.github.io/ryu/) packet parser, although it
 is less complex because the requirements are less stringent.
 
+## Installation
+
+```
+pip install scamper-pywarts
+```
+
 ## Features
 
-- pure-Python, very few dependencies
+- pure-Python, no dependency, works with both python2 and python3
 - can read all basic Warts data types (ping, traceroute)
 - nice class-based interface
 - streaming-like interface: no more than one record is pulled in
@@ -23,45 +29,19 @@ is less complex because the requirements are less stringent.
   directly from the output of a running Scamper process.
 - easily extensible for other Warts data types (patches are welcome)
 
+## Using pywarts
 
-## Difference with the implementation from CMAND
+For now, the only public API is very low-level: it simply reads from a
+stream (for instance a file) and returns Warts records as Python objects.
 
-Here is some points on which `pywarts` improves from the code from
-<https://github.com/cmand/scamper>:
+To read records, call `warts.parse_record` repeatedly until it returns
+`None`.  Remember to open your input Warts files in binary mode!
 
-- fully python3-compatible
-- nicer class-based interface, instead of huge dicts with all flags
-- properly handles unknown flags and options, by ignoring them
-- attribute names have been generally made more readable (although
-  that often means longer names)
-- possibly quite a bit faster (it would need proper benchmarks), because
-  of the way we parse flags and strings.  Also, we read a whole record
-  into memory before parsing it, which is a bit faster than calling
-  `read()` repeatedly on very small amount of data.
-
-However, there are some areas where the CMAND code does more things:
-
-- `pywarts` does not implement the deprecated address format (it is
-  quite complex and has been deprecated for several years)
-- there are some nice scripts in <https://github.com/cmand/scamper>,
-  for instance a script to attach to and control a running Scamper
-  process
-
-# Documentation
-
-Unit tests and proper documentation will come in time.
-
-## Low-level API
-
-The low-level API is pretty simple.  There is a `parse_record`
-function that takes a BufferedReader object (such as an opened file)
-and reads a record from it.  Remember to open your input Warts files
-in binary mode.
-
-The returned object is an instance of an appropriate subclass
-(e.g. `Traceroute`), depending on the record type.  Be aware that all
-optional attributes are set to None if not present in the input file.
-You should always check for this possibility in your user code.
+The returned value of `warts.parse_record` is an instance of an
+appropriate subclass (e.g. `Traceroute`), depending on the record type.
+Be aware that all optional attributes are set to None if not present in
+the input file.  You should always check for this possibility in your user
+code.
 
 Here is an example that opens a file, and repeatedly parses records
 until it finds a Traceroute record (warts files usually have a few
@@ -88,6 +68,30 @@ If parsing fails, an instance of `errors.ParseError` is thrown.
 descriptor should point to the next record even after a parsing error.
 Of course, this is not always possible, especially if the input file
 is incorrectly formatted.
+
+
+## Difference with the implementation from CMAND
+
+Here is some points on which `pywarts` improves from the code from
+<https://github.com/cmand/scamper>:
+
+- fully python3-compatible
+- nicer class-based interface, instead of huge dicts with all flags
+- properly handles unknown flags and options, by ignoring them
+- attribute names have been generally made more readable (although
+  that often means longer names)
+- possibly quite a bit faster (it would need proper benchmarks), because
+  of the way we parse flags and strings.  Also, we read a whole record
+  into memory before parsing it, which is a bit faster than calling
+  `read()` repeatedly on very small amount of data.
+
+However, there are some areas where the CMAND code does more things:
+
+- `pywarts` does not implement the deprecated address format (it is
+  quite complex and has been deprecated for several years)
+- there are some nice scripts in <https://github.com/cmand/scamper>,
+  for instance a script to attach to and control a running Scamper
+  process
 
 # Developement
 
