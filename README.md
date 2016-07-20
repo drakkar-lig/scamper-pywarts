@@ -22,12 +22,13 @@ pip install scamper-pywarts
 
 - pure-Python, no dependency, works with both python2 and python3
 - can read all basic Warts data types (ping, traceroute)
+- easily extensible for other Warts data types (patches are welcome)
 - nice class-based interface
+- reasonably good performance (a few minutes to parse a 80 MiB warts file with traceroute data)
 - streaming-like interface: no more than one record is pulled in
   memory at any given time, so it should handle very large Warts file
   with a limited amount of memory.  You can probably even consume data
   directly from the output of a running Scamper process.
-- easily extensible for other Warts data types (patches are welcome)
 
 ## Using pywarts
 
