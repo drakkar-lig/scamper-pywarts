@@ -26,6 +26,8 @@ from collections import namedtuple
 import logging
 import socket
 
+import six
+
 from .errors import ParseError, InvalidFormat, EmptyRead, IncompleteRead, ReadError
 
 logger = logging.getLogger(__name__)
@@ -56,7 +58,7 @@ class Parser(object):
         return res
 
     def read_uint8(self):
-        res = self.buf[self.offset]
+        res = six.indexbytes(self.buf, self.offset)
         self.offset += 1
         return res
 
