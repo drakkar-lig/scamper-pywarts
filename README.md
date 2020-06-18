@@ -14,7 +14,7 @@ is less complex because the requirements are less stringent.
 
 ## Installation
 
-```
+```shell
 pip install scamper-pywarts
 ```
 
@@ -48,7 +48,7 @@ Here is an example that opens a file, and repeatedly parses records
 until it finds a Traceroute record (warts files usually have a few
 initial records with mostly uninteresting data).
 
-```
+```python
 import warts
 from warts.traceroute import Traceroute
 
