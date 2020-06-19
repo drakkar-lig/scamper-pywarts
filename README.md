@@ -14,6 +14,15 @@ is less complex because the requirements are less stringent.
 
 ## Installation
 
+For Python 3 (recommended):
+
+```shell
+pip3 install scamper-pywarts
+```
+
+If you simply use `pip`, make sure it installs for the expected version of Python on
+your system:
+
 ```shell
 pip install scamper-pywarts
 ```
