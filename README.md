@@ -41,6 +41,8 @@ pip install scamper-pywarts
 
 ## Using pywarts
 
+### Low-level API
+
 For now, the only public API is very low-level: it simply reads from a
 stream (for instance a file) and returns Warts records as Python objects.
 
@@ -53,9 +55,12 @@ Be aware that all optional attributes are set to None if not present in
 the input file.  You should always check for this possibility in your user
 code.
 
+### Example 1
+
 Here is an example that opens a file, and repeatedly parses records
 until it finds a Traceroute record (warts files usually have a few
-initial records with mostly uninteresting data).
+initial records with mostly uninteresting data).  It will print
+information about this first Traceroute record and then stop.
 
 ```python
 import warts
@@ -73,6 +78,16 @@ with open('my_file.warts', 'rb') as f:
     print(record.hops)
 ```
 
+### Example 2
+
+[parse_from_stdin.py](parse_from_stdin.py) is a very simple program that takes
+a warts file as its standard input and prints all records it found.
+
+It also demonstrates logging: if you run this program in verbose mode with `-v`,
+the library will print lots of debug information about the parsing process.
+
+### Attributes
+
 To know which attributes are available, look at the definition of the
 relevant class (there will be real documentation at some point).  For
 instance, for `Traceroute`, almost all attributes are optional and defined
@@ -81,6 +96,8 @@ here:
 Some attributes are not optional and are defined in the `parse()` method
 of the class.  For instance, a traceroute object `t` always provides a
 list of `TracerouteHop` objects in `t.hops`.
+
+### Error handling
 
 If parsing fails, an instance of `errors.ParseError` is thrown.
 `pywarts` generally tries to clean up after itself, so the file
