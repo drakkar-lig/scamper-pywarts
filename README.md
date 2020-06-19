@@ -113,6 +113,7 @@ Here is some points on which `pywarts` improves from the code from
 
 - fully python3-compatible
 - nicer class-based interface, instead of huge dicts with all flags
+- much easier to extend thanks to its class-based structure
 - properly handles unknown flags and options, by ignoring them
 - attribute names have been generally made more readable (although
   that often means longer names)
@@ -123,6 +124,8 @@ Here is some points on which `pywarts` improves from the code from
 
 However, there are some areas where the CMAND code does more things:
 
+- `pywarts` currently only supports parsing Warts files, it cannot
+  write Warts files.
 - `pywarts` does not implement the deprecated address format (it is
   quite complex and has been deprecated for several years)
 - there are some nice scripts in <https://github.com/cmand/scamper>,
