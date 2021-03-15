@@ -60,3 +60,8 @@ class CycleStop(WartsRecord):
     def parse(self):
         self.cycle_id = self.p.read_uint32()
         self.stop_time = self.p.read_uint32()
+
+    def __str__(self):
+        return '{}(cycle_id={}, stop_time={})'.format(self.__class__.__name__,
+                                                      self.cycle_id,
+                                                      self.stop_time)
