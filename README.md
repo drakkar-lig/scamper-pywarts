@@ -30,7 +30,7 @@ pip install scamper-pywarts
 ## Features
 
 - pure-Python, no dependency, works with both python2 and python3
-- can read all basic Warts data types (ping, traceroute)
+- can read basic Warts data types as well as traceroute data
 - easily extensible for other Warts data types (patches are welcome)
 - nice class-based interface
 - reasonably good performance (a few minutes to parse a 80 MiB warts file with traceroute data)
@@ -122,8 +122,11 @@ Here is some points on which `pywarts` improves from the code from
   into memory before parsing it, which is a bit faster than calling
   `read()` repeatedly on very small amount of data.
 
-However, there are some areas where the CMAND code does more things:
+However, there are some areas where `pywarts` is less featureful than
+the CMAND code:
 
+- `pywarts` doesn't yet implement the Ping record type, see
+  <https://github.com/drakkar-lig/scamper-pywarts/issues/5>
 - `pywarts` currently only supports parsing Warts files, it cannot
   write Warts files.
 - `pywarts` does not implement the deprecated address format (it is
